@@ -5,7 +5,7 @@ contract FIRComplaint {
     address public officer;
     address public owner;
     uint public nextId;
-    uint256[] public pendingApproval;
+    uint256[] public pendingApprovals;
     uint256[] public pendingResolutions;
     uint256[] public resolvedCases;
 
@@ -126,5 +126,45 @@ contract FIRComplaint {
         );
         complaints[_id].isResolved = true;
         complaints[_id].resolutionRemark = _resolutionRemark;
+    }
+
+    function calcPendingApprovalIds() public {
+        delete pendingApprovals;
+        for (uint256 i = 1; i < nextId; i++) {
+            if (
+                complaints[i].isApproved == false &&
+                complaints[i].exists == true
+            ) {
+                pendingApprovals.push(complaints[i].id);
+            }
+        }
+    }
+
+    function calcPendingResolutionIds() public {
+        delete pendingResolutions;
+        for (uint256 i = 1; i < nextId; i++) {
+            if (
+                complaints[i].isApproved == true &&
+                complaints[i].isResolved == false &&
+                complaints[i].exists == true
+            ) {
+                pendingResolutions.push(complaints[i].id);
+            }
+        }
+    }
+
+    function calcResolvedIds() public {
+        delete resolvedCases;
+        for (uint256 i = 1; i < nextId; i++) {
+            if (
+                complaints[i].isResolved == true && complaints[i].exists == true
+            ) {
+                resolvedCases.push(complaints[i].id);
+            }
+        }
+    }
+
+    function setOfficerAddress(address _officer) public onlyOwner {
+        owner = _officer;
     }
 }
